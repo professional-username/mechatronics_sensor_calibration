@@ -27,6 +27,7 @@ Place your raw data files in the `data/` directory. The following files are expe
 - `clean_ultrasonic.csv`
 - `calibrated_accelerometer.csv`
 - `calibrated_infrared.csv`
+- `calibrated_ultrasonic.csv`
 
 Note: The raw data files are not provided with this project and must be added separately.
 

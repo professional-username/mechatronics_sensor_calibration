@@ -46,7 +46,7 @@ distance,value,surface
 N: 307
 X_range: 0-100
 
-data/calibrated_acceletometer.csv
+data/calibrated_accelerometer.csv
 ```
 angle,reading,dimension,data type
 0,-1.96,x,recorded
@@ -76,7 +76,7 @@ distance, measured distance
 N: 1700
 X_range: 20-100
 
-data/clean_ultrasonic.csv
+data/calibrated_ultrasonic.csv
 ```
 distance, measured distance
 5.00, 5.61
