@@ -109,7 +109,7 @@ def process_dimension(recorded_df, calculated_df, dimension):
 
 
 def create_dimension_lookup_table(calculated_df, dimension, slope, intercept):
-    """Create a lookup table for a specific dimension with angles, calculated values, and measured values"""
+    """Create a lookup table for a specific dimension with calculated values and measured values (no angle)"""
     # Get all unique angles for this dimension
     dimension_calc = calculated_df[calculated_df['dimension'] == dimension]
     all_angles = dimension_calc['angle'].unique()
@@ -132,7 +132,6 @@ def create_dimension_lookup_table(calculated_df, dimension, slope, intercept):
             measured_value = None
         
         lookup_data.append({
-            'angle': angle,
             'calculated': calc_value,
             'measured': measured_value
         })
@@ -142,9 +141,7 @@ def create_dimension_lookup_table(calculated_df, dimension, slope, intercept):
 
 
 def create_lookup_tables(recorded_df, calculated_df, results):
-    """Create separate lookup tables for x, y, and z dimensions"""
-    lookup_tables = {}
-    
+    """Create and save separate lookup tables for x, y, and z dimensions"""
     for result in results:
         dimension = result['dimension']
         slope = result['slope']
@@ -152,9 +149,12 @@ def create_lookup_tables(recorded_df, calculated_df, results):
         
         print(f"  Creating lookup table for {dimension} dimension...")
         lookup_df = create_dimension_lookup_table(calculated_df, dimension, slope, intercept)
-        lookup_tables[dimension] = lookup_df
-    
-    return lookup_tables
+        
+        # Save the lookup table to CSV
+        filename = f"output/accelerometer_lookup_table_{dimension}.csv"
+        lookup_df.to_csv(filename, index=False)
+        print(f"    Lookup table for {dimension} saved to {filename}")
+        print(f"    Table shape: {lookup_df.shape}")
 
 
 def process():
@@ -172,14 +172,7 @@ def process():
     
     # Create and save lookup tables
     print("\nCreating lookup tables...")
-    lookup_tables = create_lookup_tables(recorded_df, calculated_df, results)
-    
-    # Save each dimension's lookup table to a separate CSV file
-    for dimension, lookup_df in lookup_tables.items():
-        filename = f"output/accelerometer_lookup_table_{dimension}.csv"
-        lookup_df.to_csv(filename, index=False)
-        print(f"  Lookup table for {dimension} saved to {filename}")
-        print(f"  Table shape: {lookup_df.shape}")
+    create_lookup_tables(recorded_df, calculated_df, results)
     
     # Print summary
     print("\nRegression analysis complete!")
