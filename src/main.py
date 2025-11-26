@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def configure_seaborn():
     """Configure seaborn style settings"""
     sns.set_theme()
-    sns.set_palette("husl")
+    # sns.set_palette("mako")
     plt.rcParams["figure.figsize"] = (12, 8)
     plt.rcParams["figure.dpi"] = 100
 
