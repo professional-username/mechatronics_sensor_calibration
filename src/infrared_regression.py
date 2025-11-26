@@ -8,20 +8,24 @@ from scipy.optimize import curve_fit
 
 # Global variables
 DATASET_TO_USE = "A"  # Options: "A" or "B"
-CUTOFF_DISTANCE = 120  # Distance beyond which to exclude data
+MIN_CUTOFF_DISTANCE = 0.5  # Distance before which to exclude data
+MAX_CUTOFF_DISTANCE = 120  # Distance beyond which to exclude data
 
 def exponential_func(x, a, b, c):
     """Exponential function for curve fitting - decreasing"""
     return a * np.exp(-b * x) + c
 
 def load_and_prepare_data(file_path):
-    """Load infrared data and filter based on dataset and cutoff"""
+    """Load infrared data and filter based on dataset and cutoffs"""
     print("Loading infrared data...")
     df = pd.read_csv(file_path)
     # Filter by selected dataset
     filtered_df = df[df["dataset"] == DATASET_TO_USE]
-    # Apply distance cutoff
-    filtered_df = filtered_df[filtered_df["distance"] <= CUTOFF_DISTANCE]
+    # Apply distance cutoffs
+    filtered_df = filtered_df[
+        (filtered_df["distance"] >= MIN_CUTOFF_DISTANCE) & 
+        (filtered_df["distance"] <= MAX_CUTOFF_DISTANCE)
+    ]
     return filtered_df
 
 def perform_exponential_regression(df):
@@ -97,7 +101,7 @@ def process():
     """Main function to process infrared data for regression analysis"""
     # Load and prepare data
     df = load_and_prepare_data("data/clean_infrared.csv")
-    print(f"Using dataset {DATASET_TO_USE} with distance cutoff {CUTOFF_DISTANCE}")
+    print(f"Using dataset {DATASET_TO_USE} with distance range: {MIN_CUTOFF_DISTANCE} to {MAX_CUTOFF_DISTANCE}")
     print(f"Data points after filtering: {len(df)}")
     
     # Perform regression
