@@ -52,6 +52,18 @@ def parse_arguments():
         "--ultrasonic-regression", action="store_true", 
         help="Process ultrasonic regression analysis"
     )
+    parser.add_argument(
+        "--accelerometer-calibrated", action="store_true", 
+        help="Plot calibrated accelerometer data"
+    )
+    parser.add_argument(
+        "--infrared-calibrated", action="store_true", 
+        help="Plot calibrated infrared data"
+    )
+    parser.add_argument(
+        "--ultrasonic-calibrated", action="store_true", 
+        help="Plot calibrated ultrasonic data"
+    )
     parser.add_argument("--all", action="store_true", help="Process all data")
     return parser.parse_args()
 
@@ -112,6 +124,33 @@ def process_sensor_modules(args):
             ultrasonic_regression.process()
         except ImportError as e:
             print(f"Error importing ultrasonic regression module: {e}")
+
+    if should_process_sensor(args, "accelerometer_calibrated"):
+        try:
+            from . import accelerometer_calibrated
+
+            print("Plotting calibrated accelerometer data...")
+            accelerometer_calibrated.process()
+        except ImportError as e:
+            print(f"Error importing accelerometer calibrated module: {e}")
+
+    if should_process_sensor(args, "infrared_calibrated"):
+        try:
+            from . import infrared_calibrated
+
+            print("Plotting calibrated infrared data...")
+            infrared_calibrated.process()
+        except ImportError as e:
+            print(f"Error importing infrared calibrated module: {e}")
+
+    if should_process_sensor(args, "ultrasonic_calibrated"):
+        try:
+            from . import ultrasonic_calibrated
+
+            print("Plotting calibrated ultrasonic data...")
+            ultrasonic_calibrated.process()
+        except ImportError as e:
+            print(f"Error importing ultrasonic calibrated module: {e}")
 
 
 def main():
