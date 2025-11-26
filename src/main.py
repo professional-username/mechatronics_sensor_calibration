@@ -31,6 +31,10 @@ def parse_arguments():
     parser.add_argument(
         "--ultrasonic", action="store_true", help="Process ultrasonic data"
     )
+    parser.add_argument(
+        "--accelerometer-regression", action="store_true", 
+        help="Process accelerometer regression analysis"
+    )
     parser.add_argument("--all", action="store_true", help="Process all data")
     return parser.parse_args()
 
@@ -64,6 +68,15 @@ def process_sensor_modules(args):
             ultrasonic.process()
         except ImportError as e:
             print(f"Error importing ultrasonic module: {e}")
+
+    if should_process_sensor(args, "accelerometer_regression"):
+        try:
+            from . import accelerometer_regression
+
+            print("Processing accelerometer regression analysis...")
+            accelerometer_regression.process()
+        except ImportError as e:
+            print(f"Error importing accelerometer regression module: {e}")
 
 
 def main():
