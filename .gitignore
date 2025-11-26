@@ -14,3 +14,5 @@ devenv.local.yaml
 *.csv
 
 __pycache__
+
+output
