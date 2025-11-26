@@ -109,7 +109,7 @@ def process_dimension(recorded_df, calculated_df, dimension):
 
 
 def create_dimension_lookup_table(calculated_df, dimension, slope, intercept):
-    """Create a lookup table for a specific dimension with calculated values and measured values (no angle)"""
+    """Create a lookup table for a specific dimension with measurement and value columns (no angle)"""
     # Get all unique angles for this dimension
     dimension_calc = calculated_df[calculated_df['dimension'] == dimension]
     all_angles = dimension_calc['angle'].unique()
@@ -132,8 +132,8 @@ def create_dimension_lookup_table(calculated_df, dimension, slope, intercept):
             measured_value = None
         
         lookup_data.append({
-            'calculated': calc_value,
-            'measured': measured_value
+            'measurement': measured_value,
+            'value': calc_value
         })
     
     lookup_df = pd.DataFrame(lookup_data)
