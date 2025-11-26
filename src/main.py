@@ -14,8 +14,17 @@ def configure_seaborn():
 
 
 def setup_environment():
-    """Create output directory and configure plotting"""
+    """Create output directories and configure plotting"""
+    # Create main output directory and subdirectories
     Path("output").mkdir(exist_ok=True)
+    Path("output/plots").mkdir(exist_ok=True)
+    Path("output/plots/accelerometer").mkdir(exist_ok=True)
+    Path("output/plots/infrared").mkdir(exist_ok=True)
+    Path("output/plots/ultrasonic").mkdir(exist_ok=True)
+    Path("output/lookup_tables").mkdir(exist_ok=True)
+    Path("output/lookup_tables/accelerometer").mkdir(exist_ok=True)
+    Path("output/lookup_tables/infrared").mkdir(exist_ok=True)
+    Path("output/lookup_tables/ultrasonic").mkdir(exist_ok=True)
     configure_seaborn()
 
 

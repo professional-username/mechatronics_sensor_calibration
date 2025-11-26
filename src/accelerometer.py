@@ -85,7 +85,7 @@ def process():
 
         plt.legend(unique_handles, unique_labels)
 
-    plt.savefig("output/accelerometer_plot.png")
+    plt.savefig("output/plots/accelerometer/accelerometer_plot.png")
     plt.close()
 
-    print("Accelerometer visualization saved to output/accelerometer_plot.png")
+    print("Accelerometer visualization saved to output/plots/accelerometer/accelerometer_plot.png")

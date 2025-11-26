@@ -77,7 +77,7 @@ def create_regression_plot(merged_df, dimension, regressor, r2):
     
     # Save the plot
     plt.tight_layout()
-    plt.savefig(f"output/accelerometer_regression_{dimension}.png", dpi=150)
+    plt.savefig(f"output/plots/accelerometer/accelerometer_regression_{dimension}.png", dpi=150)
     plt.close()
 
 
@@ -151,7 +151,7 @@ def create_lookup_tables(recorded_df, calculated_df, results):
         lookup_df = create_dimension_lookup_table(calculated_df, dimension, slope, intercept)
         
         # Save the lookup table to CSV
-        filename = f"output/accelerometer_lookup_table_{dimension}.csv"
+        filename = f"output/lookup_tables/accelerometer/accelerometer_lookup_table_{dimension}.csv"
         lookup_df.to_csv(filename, index=False)
         print(f"    Lookup table for {dimension} saved to {filename}")
         print(f"    Table shape: {lookup_df.shape}")

@@ -51,7 +51,7 @@ def create_regression_plot(df, regressor, r2, surface):
     )
     
     plt.tight_layout()
-    plt.savefig(f"output/ultrasonic_regression_surface_{surface}.png", dpi=150)
+    plt.savefig(f"output/plots/ultrasonic/ultrasonic_regression_surface_{surface}.png", dpi=150)
     plt.close()
 
 def create_lookup_table(df, regressor, surface):
@@ -98,7 +98,7 @@ def process():
         # Create lookup table
         print("Creating lookup table...")
         lookup_df = create_lookup_table(filtered_df, regressor, surface)
-        filename = f"output/ultrasonic_lookup_table_surface_{surface}.csv"
+        filename = f"output/lookup_tables/ultrasonic/ultrasonic_lookup_table_surface_{surface}.csv"
         lookup_df.to_csv(filename, index=False)
         print(f"Lookup table saved to {filename}")
         print(f"Table shape: {lookup_df.shape}")

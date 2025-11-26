@@ -19,7 +19,7 @@ def process():
     plt.xlabel("Distance")
     plt.ylabel("Value")
     plt.legend()
-    plt.savefig("output/ultrasonic_plot.png")
+    plt.savefig("output/plots/ultrasonic/ultrasonic_plot.png")
     plt.close()
     
-    print("Ultrasonic visualization saved to output/ultrasonic_plot.png")
+    print("Ultrasonic visualization saved to output/plots/ultrasonic/ultrasonic_plot.png")

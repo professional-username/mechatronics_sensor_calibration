@@ -19,7 +19,7 @@ def process():
     plt.xlabel("Distance")
     plt.ylabel("Value")
     plt.legend()
-    plt.savefig("output/infrared_plot.png")
+    plt.savefig("output/plots/infrared/infrared_plot.png")
     plt.close()
     
-    print("Infrared visualization saved to output/infrared_plot.png")
+    print("Infrared visualization saved to output/plots/infrared/infrared_plot.png")

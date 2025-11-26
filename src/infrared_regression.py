@@ -76,7 +76,7 @@ def create_regression_plot(df, params, r2, dataset):
 
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"output/infrared_regression_dataset_{dataset}.png", dpi=150)
+    plt.savefig(f"output/plots/infrared/infrared_regression_dataset_{dataset}.png", dpi=150)
     plt.close()
 
 
@@ -149,7 +149,7 @@ def process():
             # Create lookup table
             print("Creating lookup table...")
             lookup_df = create_lookup_table(filtered_df, params, dataset)
-            filename = f"output/infrared_lookup_table_dataset_{dataset}.csv"
+            filename = f"output/lookup_tables/infrared/infrared_lookup_table_dataset_{dataset}.csv"
             lookup_df.to_csv(filename, index=False)
             print(f"Lookup table saved to {filename}")
             print(f"Table shape: {lookup_df.shape}")
