@@ -51,17 +51,18 @@ def process():
         # Perform linear regression
         X = merged_df[["value_recorded"]]
         y = merged_df["value_calculated"]
-        regressor = LinearRegression()
+        regressor = LinearRegression(fit_intercept=False)
         regressor.fit(X, y)
         y_pred = regressor.predict(X)
 
         # Plot regression line using seaborn's lineplot with dotted style
         # To use lineplot, we need to sort by x values to get a proper line
         plot_df = merged_df.copy()
-        plot_df = plot_df.sort_values('value_recorded')
-        plot_df['y_pred'] = regressor.predict(plot_df[['value_recorded']])
-        sns.lineplot(data=plot_df, x='value_recorded', y='y_pred', 
-                     linestyle='--', linewidth=2)
+        plot_df = plot_df.sort_values("value_recorded")
+        plot_df["y_pred"] = regressor.predict(plot_df[["value_recorded"]])
+        sns.lineplot(
+            data=plot_df, x="value_recorded", y="y_pred", linestyle="--", linewidth=2
+        )
 
         # Add R² and regression coefficients to the plot
         r2 = r2_score(y, y_pred)
@@ -69,7 +70,7 @@ def process():
         intercept = regressor.intercept_
         plt.text(
             0.05,
-            0.95,
+            0.90,
             f"R² = {r2:.4f}\nSlope = {slope:.4f}\nIntercept = {intercept:.4f}",
             transform=plt.gca().transAxes,
             bbox=dict(boxstyle="round", alpha=0.5),
