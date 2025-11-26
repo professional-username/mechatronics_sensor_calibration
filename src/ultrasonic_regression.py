@@ -14,9 +14,9 @@ def load_and_prepare_data(file_path):
 
 
 def perform_linear_regression(df):
-    """Perform linear regression on distance vs value"""
-    X = df[["value"]]
-    y = df["distance"]
+    """Perform linear regression on value vs distance"""
+    X = df[["distance"]]
+    y = df["value"]
     regressor = LinearRegression(fit_intercept=False)
     regressor.fit(X, y)
     y_pred = regressor.predict(X)
@@ -27,19 +27,19 @@ def perform_linear_regression(df):
 def create_regression_plot(df, regressor, r2, surface):
     """Create and save regression plot"""
     plt.figure()
-    sns.scatterplot(data=df, x="value", y="distance")
-    plt.xlabel("Value")
-    plt.ylabel("Distance")
+    sns.scatterplot(data=df, x="distance", y="value")
+    plt.xlabel("Distance")
+    plt.ylabel("Value")
     plt.title(f"Ultrasonic Sensor Calibration (Surface: {surface})")
 
     # Prepare data for regression line
     plot_df = df.copy()
-    plot_df = plot_df.sort_values("value")
-    plot_df["distance_pred"] = regressor.predict(plot_df[["value"]])
+    plot_df = plot_df.sort_values("distance")
+    plot_df["value_pred"] = regressor.predict(plot_df[["distance"]])
 
     # Plot regression line
     sns.lineplot(
-        data=plot_df, x="value", y="distance_pred", linestyle="--", linewidth=2
+        data=plot_df, x="distance", y="value_pred", linestyle="--", linewidth=2
     )
 
     # Add regression metrics to the plot
@@ -61,15 +61,15 @@ def create_regression_plot(df, regressor, r2, surface):
 
 
 def create_lookup_table(df, regressor, surface):
-    """Create value->distance lookup table using linear regression"""
-    # Get unique values from the data
-    unique_values = np.sort(df["value"].unique())
+    """Create distance->value lookup table using linear regression"""
+    # Get unique distances from the data
+    unique_distances = np.sort(df["distance"].unique())
 
-    # Predict distance using the regression model
+    # Predict value using the regression model
     lookup_data = []
-    for value in unique_values:
-        distance = regressor.predict([[value]])[0]
-        lookup_data.append({"value": value, "distance": distance})
+    for distance in unique_distances:
+        value = regressor.predict([[distance]])[0]
+        lookup_data.append({"distance": distance, "value": value})
 
     lookup_df = pd.DataFrame(lookup_data)
     return lookup_df
