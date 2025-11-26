@@ -33,12 +33,18 @@ def load_and_prepare_data(file_path):
 
 def perform_exponential_regression(df):
     """Perform exponential regression on distance vs value"""
-    X = df["distance"].values
-    y = df["value"].values
+    # Sort by distance to ensure proper fitting
+    sorted_df = df.sort_values("distance")
+    X = sorted_df["distance"].values
+    y = sorted_df["value"].values
 
+    # Provide initial parameter guesses to help the fitting process
+    # For a decreasing exponential, a should be positive, b positive, c around the minimum value
+    initial_guess = [max(y) - min(y), 0.1, min(y)]
+    
     # Fit exponential curve
     try:
-        popt, pcov = curve_fit(exponential_func, X, y, maxfev=5000)
+        popt, pcov = curve_fit(exponential_func, X, y, p0=initial_guess, maxfev=5000)
         a, b, c = popt
         y_pred = exponential_func(X, a, b, c)
         r2 = r2_score(y, y_pred)
@@ -51,7 +57,9 @@ def perform_exponential_regression(df):
 def create_regression_plot(df, params, r2):
     """Create and save regression plot"""
     plt.figure()
-    sns.scatterplot(data=df, x="distance", y="value")
+    # Sort the data for better visualization
+    sorted_df = df.sort_values("distance")
+    sns.scatterplot(data=sorted_df, x="distance", y="value", alpha=0.5, label="Data points")
     plt.xlabel("Distance")
     plt.ylabel("Value")
     plt.title(f"Infrared Sensor Calibration (Dataset {DATASET_TO_USE})")
@@ -59,7 +67,7 @@ def create_regression_plot(df, params, r2):
     # Plot fitted curve
     if params:
         a, b, c = params
-        x_plot = np.linspace(df["distance"].min(), df["distance"].max(), 100)
+        x_plot = np.linspace(sorted_df["distance"].min(), sorted_df["distance"].max(), 300)
         y_plot = exponential_func(x_plot, a, b, c)
         plt.plot(x_plot, y_plot, "r-", linewidth=2, label="Exponential fit")
 
@@ -74,6 +82,7 @@ def create_regression_plot(df, params, r2):
             bbox=dict(boxstyle="round", alpha=0.5),
         )
 
+    plt.legend()
     plt.tight_layout()
     plt.savefig(f"output/infrared_regression_dataset_{DATASET_TO_USE}.png", dpi=150)
     plt.close()
@@ -88,15 +97,27 @@ def create_lookup_table(df, params):
     # Get unique values from the data
     unique_values = np.sort(df["value"].unique())
 
-    # For exponential function value = a * exp(-b * distance) + c
+    # For exponential function value = a * np.exp(-b * distance) + c
     # Solve for distance: distance = -ln((value - c) / a) / b
     lookup_data = []
     for value in unique_values:
-        if (value - c) / a > 0:  # Ensure valid for logarithm
-            distance = -np.log((value - c) / a) / b
-            lookup_data.append({"value": value, "distance": distance})
+        # Check if the value is within the valid range for the inverse function
+        if (value - c) / a > 0 and not np.isclose((value - c) / a, 0):
+            try:
+                distance = -np.log((value - c) / a) / b
+                # Ensure distance is positive and reasonable
+                if distance >= 0 and distance <= 2 * df["distance"].max():
+                    lookup_data.append({"value": value, "distance": distance})
+            except (ValueError, RuntimeWarning):
+                # Skip values that cause issues
+                continue
+        else:
+            # Handle cases where the value is too close to c or invalid
+            continue
 
     lookup_df = pd.DataFrame(lookup_data)
+    # Sort by value to make it easier to use
+    lookup_df = lookup_df.sort_values("value")
     return lookup_df
 
 
