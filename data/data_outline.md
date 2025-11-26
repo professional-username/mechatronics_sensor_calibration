@@ -45,3 +45,48 @@ distance,value,surface
 ```
 N: 307
 X_range: 0-100
+
+data/calibrated_acceletometer.csv
+```
+angle,reading,dimension,data type
+0,-1.96,x,recorded
+0,-1.86,x,recorded
+...
+360,-1.2,x,recorded
+0,-10.65,z,recorded
+...
+342,-9.329864425,z,calculated
+360,-9.81,z,calculated
+```
+N: 4242
+X_range: 0-360
+
+data/calibrated_infrared.csv
+```
+distance, measured distance
+20.00,20.32
+20.00,20.32
+...
+40.00,41.83
+45.00,46.93
+...
+100.00,109.52
+100.00,109.52
+```
+N: 1700
+X_range: 20-100
+
+data/clean_ultrasonic.csv
+```
+distance, measured distance
+5.00, 5.61
+5.00, 5.61
+...
+25.00, 26.27
+30.00, 31.03
+...
+100.00, 103.76
+100.00, 103.76
+```
+N: 2000
+X_range: 5-100
