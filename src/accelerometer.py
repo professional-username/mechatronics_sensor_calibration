@@ -39,15 +39,15 @@ def process():
         # Convert angle dtype to categorical for the lineplot
         calculated["angle"] = calculated["angle"].astype(str)
 
-    sns.lineplot(
-        data=calculated,
-        x="angle",
-        y="value",
-        hue="dimension",
-        # style="plot_type",
-        # dashes=[(2, 2)],  # Dashed line for all calculated data
-        markers=False,
-    )
+    # sns.lineplot(
+    #     data=calculated,
+    #     x="angle",
+    #     y="value",
+    #     hue="dimension",
+    #     # style="plot_type",
+    #     # dashes=[(2, 2)],  # Dashed line for all calculated data
+    #     markers=False,
+    # )
 
     plt.title("Accelerometer Data by Angle and Dimension")
     plt.xlabel("Angle")
@@ -88,4 +88,6 @@ def process():
     plt.savefig("output/plots/accelerometer/accelerometer_plot.png")
     plt.close()
 
-    print("Accelerometer visualization saved to output/plots/accelerometer/accelerometer_plot.png")
+    print(
+        "Accelerometer visualization saved to output/plots/accelerometer/accelerometer_plot.png"
+    )

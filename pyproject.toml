@@ -8,5 +8,6 @@ dependencies = [
     "pandas",
     "seaborn",
     "matplotlib",
-    "numpy"
+    "numpy",
+    "scikit-learn>=1.7.2",
 ]

@@ -1,7 +1,7 @@
 # Description of Data files
 This document outlines the structure of each document in data/, and gives sample data rows. Also listed are the number of rows, and the range of values in the first column.
 
-data/clean_acceletomerer.csv:
+data/clean_accelerometer.csv:
 ```
 angle,value,dimension,data type
 0,804,x,recorded

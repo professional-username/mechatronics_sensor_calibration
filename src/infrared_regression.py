@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 
 # Global variables
 MIN_CUTOFF_DISTANCE = 20  # Distance before which to exclude data
-MAX_CUTOFF_DISTANCE = 120  # Distance beyond which to exclude data
+MAX_CUTOFF_DISTANCE = 121  # Distance beyond which to exclude data
 
 
 def exponential_func(x, a, b, c):
@@ -33,7 +33,7 @@ def perform_exponential_regression(df):
     # Provide initial parameter guesses to help the fitting process
     # For a decreasing exponential, a should be positive, b positive, c around the minimum value
     initial_guess = [max(y) - min(y), 0.1, min(y)]
-    
+
     # Fit exponential curve
     try:
         popt, pcov = curve_fit(exponential_func, X, y, p0=initial_guess, maxfev=5000)
@@ -51,7 +51,9 @@ def create_regression_plot(df, params, r2, dataset):
     plt.figure()
     # Sort the data for better visualization
     sorted_df = df.sort_values("distance")
-    sns.scatterplot(data=sorted_df, x="distance", y="value", alpha=0.5, label="Data points")
+    sns.scatterplot(
+        data=sorted_df, x="distance", y="value", alpha=0.5, label="Data points"
+    )
     plt.xlabel("Distance")
     plt.ylabel("Value")
     plt.title(f"Infrared Sensor Calibration (Dataset {dataset})")
@@ -59,7 +61,9 @@ def create_regression_plot(df, params, r2, dataset):
     # Plot fitted curve
     if params:
         a, b, c = params
-        x_plot = np.linspace(sorted_df["distance"].min(), sorted_df["distance"].max(), 300)
+        x_plot = np.linspace(
+            sorted_df["distance"].min(), sorted_df["distance"].max(), 300
+        )
         y_plot = exponential_func(x_plot, a, b, c)
         plt.plot(x_plot, y_plot, "r-", linewidth=2, label="Exponential fit")
 
@@ -76,7 +80,9 @@ def create_regression_plot(df, params, r2, dataset):
 
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"output/plots/infrared/infrared_regression_dataset_{dataset}.png", dpi=150)
+    plt.savefig(
+        f"output/plots/infrared/infrared_regression_dataset_{dataset}.png", dpi=150
+    )
     plt.close()
 
 
@@ -117,11 +123,11 @@ def process():
     """Main function to process infrared data for regression analysis"""
     # Load data
     df = load_and_prepare_data("data/clean_infrared.csv")
-    
+
     # Get all unique datasets
     datasets = df["dataset"].unique()
     print(f"Found datasets: {list(datasets)}")
-    
+
     for dataset in datasets:
         print(f"\nProcessing dataset: {dataset}")
         # Filter data for current dataset and apply cutoffs
@@ -130,9 +136,7 @@ def process():
             (filtered_df["distance"] >= MIN_CUTOFF_DISTANCE)
             & (filtered_df["distance"] <= MAX_CUTOFF_DISTANCE)
         ]
-        print(
-            f"Using distance range: {MIN_CUTOFF_DISTANCE} to {MAX_CUTOFF_DISTANCE}"
-        )
+        print(f"Using distance range: {MIN_CUTOFF_DISTANCE} to {MAX_CUTOFF_DISTANCE}")
         print(f"Data points after filtering: {len(filtered_df)}")
 
         # Perform regression
