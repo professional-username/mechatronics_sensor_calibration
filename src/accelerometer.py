@@ -28,20 +28,15 @@ def process():
         for i, dim in enumerate(DIMENSIONS_TO_PLOT):
             dim_data = recorded[recorded["dimension"] == dim]
             sns.scatterplot(
-                data=dim_data, 
-                x="angle", 
-                y="value", 
-                label=f"{dim} recorded", 
-                alpha=0.6
+                data=dim_data,
+                x="angle",
+                y="value",
+                label=f"{dim} recorded",
+                alpha=0.6,
             )
     elif RECORDED_DATA_PLOT == "boxplot":
         # Use hue parameter to let seaborn handle colors automatically
-        sns.boxplot(
-            data=recorded,
-            x="angle",
-            y="value",
-            hue="dimension"
-        )
+        sns.boxplot(data=recorded, x="angle", y="value", hue="dimension")
 
     # Plot calculated data as line plot
     for i, dim in enumerate(DIMENSIONS_TO_PLOT):
@@ -51,7 +46,7 @@ def process():
             x="angle",
             y="value",
             label=f"{dim} calculated",
-            linestyle="--"
+            linestyle="--",
         )
 
     plt.title("Accelerometer Data by Angle and Dimension")
