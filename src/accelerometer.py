@@ -25,33 +25,33 @@ def process():
 
     # Plot recorded data based on the selected plot type
     if RECORDED_DATA_PLOT == "scatter":
-        for dim in DIMENSIONS_TO_PLOT:
+        for i, dim in enumerate(DIMENSIONS_TO_PLOT):
             dim_data = recorded[recorded["dimension"] == dim]
             sns.scatterplot(
-                data=dim_data, x="angle", y="value", label=f"{dim} recorded", alpha=0.6
+                data=dim_data, 
+                x="angle", 
+                y="value", 
+                label=f"{dim} recorded", 
+                alpha=0.6
             )
     elif RECORDED_DATA_PLOT == "boxplot":
-        # Create boxplot for each angle
-        # We need to ensure the x-axis is treated as categorical for boxplot
-        # To avoid too many boxes, we can use the actual angle values
-        # Since angles are from 0-360, and there are 6365/3 ~= 2121 points per dimension, which is manageable
-        for dim in DIMENSIONS_TO_PLOT:
-            dim_data = recorded[recorded["dimension"] == dim]
-            # Sort by angle to ensure proper ordering
-            dim_data = dim_data.sort_values("angle")
-            sns.boxplot(data=dim_data, x="angle", y="value", label=f"{dim} recorded")
-            # Note: Boxplot with many categories may be very dense
-            # We might need to adjust the visualization if there are too many angles
+        # Use hue parameter to let seaborn handle colors automatically
+        sns.boxplot(
+            data=recorded,
+            x="angle",
+            y="value",
+            hue="dimension"
+        )
 
     # Plot calculated data as line plot
-    for dim in DIMENSIONS_TO_PLOT:
+    for i, dim in enumerate(DIMENSIONS_TO_PLOT):
         dim_data = calculated[calculated["dimension"] == dim]
         sns.lineplot(
             data=dim_data,
             x="angle",
             y="value",
             label=f"{dim} calculated",
-            linestyle="--",
+            linestyle="--"
         )
 
     plt.title("Accelerometer Data by Angle and Dimension")
