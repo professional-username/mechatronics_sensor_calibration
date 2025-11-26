@@ -108,6 +108,49 @@ def process_dimension(recorded_df, calculated_df, dimension):
     }
 
 
+def create_lookup_table(recorded_df, calculated_df, results):
+    """Create a lookup table with angles, calculated values, and measured values using regression"""
+    # Get all unique angles
+    all_angles = pd.concat([
+        recorded_df['angle'], 
+        calculated_df['angle']
+    ]).unique()
+    all_angles.sort()
+    
+    lookup_data = []
+    
+    for angle in all_angles:
+        row = {'angle': angle}
+        
+        # For each dimension, get the calculated value and compute measured value
+        for result in results:
+            dimension = result['dimension']
+            slope = result['slope']
+            intercept = result['intercept']
+            
+            # Get calculated value for this angle and dimension
+            calc_mask = (calculated_df['angle'] == angle) & (calculated_df['dimension'] == dimension)
+            if calc_mask.any():
+                calc_value = calculated_df.loc[calc_mask, 'value'].iloc[0]
+            else:
+                calc_value = None
+            
+            # Compute measured value using regression: measured = (calculated - intercept) / slope
+            # But be careful if slope is zero
+            if calc_value is not None and slope != 0:
+                measured_value = (calc_value - intercept) / slope
+            else:
+                measured_value = None
+            
+            row[f'{dimension}_calculated'] = calc_value
+            row[f'{dimension}_measured'] = measured_value
+        
+        lookup_data.append(row)
+    
+    lookup_df = pd.DataFrame(lookup_data)
+    return lookup_df
+
+
 def process():
     """Main function to process accelerometer data for regression analysis"""
     # Load data
@@ -120,6 +163,13 @@ def process():
     for dimension in dimensions:
         result = process_dimension(recorded_df, calculated_df, dimension)
         results.append(result)
+    
+    # Create and save lookup table
+    print("\nCreating lookup table...")
+    lookup_df = create_lookup_table(recorded_df, calculated_df, results)
+    lookup_df.to_csv("output/accelerometer_lookup_table.csv", index=False)
+    print(f"Lookup table saved to output/accelerometer_lookup_table.csv")
+    print(f"Table shape: {lookup_df.shape}")
     
     # Print summary
     print("\nRegression analysis complete!")
