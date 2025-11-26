@@ -5,16 +5,11 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
-# Global variable
-SURFACE_TO_USE = "phone"  # Options: "phone" or "hand"
-
 def load_and_prepare_data(file_path):
-    """Load ultrasonic data and filter based on surface"""
+    """Load ultrasonic data"""
     print("Loading ultrasonic data...")
     df = pd.read_csv(file_path)
-    # Filter by selected surface
-    filtered_df = df[df["surface"] == SURFACE_TO_USE]
-    return filtered_df
+    return df
 
 def perform_linear_regression(df):
     """Perform linear regression on distance vs value"""
@@ -26,13 +21,13 @@ def perform_linear_regression(df):
     r2 = r2_score(y, y_pred)
     return regressor, r2, y_pred
 
-def create_regression_plot(df, regressor, r2):
+def create_regression_plot(df, regressor, r2, surface):
     """Create and save regression plot"""
     plt.figure()
     sns.scatterplot(data=df, x="value", y="distance")
     plt.xlabel("Value")
     plt.ylabel("Distance")
-    plt.title(f"Ultrasonic Sensor Calibration (Surface: {SURFACE_TO_USE})")
+    plt.title(f"Ultrasonic Sensor Calibration (Surface: {surface})")
     
     # Prepare data for regression line
     plot_df = df.copy()
@@ -56,10 +51,10 @@ def create_regression_plot(df, regressor, r2):
     )
     
     plt.tight_layout()
-    plt.savefig(f"output/ultrasonic_regression_surface_{SURFACE_TO_USE}.png", dpi=150)
+    plt.savefig(f"output/ultrasonic_regression_surface_{surface}.png", dpi=150)
     plt.close()
 
-def create_lookup_table(df, regressor):
+def create_lookup_table(df, regressor, surface):
     """Create value->distance lookup table using linear regression"""
     # Get unique values from the data
     unique_values = np.sort(df["value"].unique())
@@ -78,24 +73,32 @@ def create_lookup_table(df, regressor):
 
 def process():
     """Main function to process ultrasonic data for regression analysis"""
-    # Load and prepare data
+    # Load data
     df = load_and_prepare_data("data/clean_ultrasonic.csv")
-    print(f"Using surface: {SURFACE_TO_USE}")
-    print(f"Data points: {len(df)}")
     
-    # Perform regression
-    regressor, r2, y_pred = perform_linear_regression(df)
+    # Get all unique surfaces
+    surfaces = df["surface"].unique()
+    print(f"Found surfaces: {list(surfaces)}")
     
-    print(f"R² score: {r2:.4f}")
-    print(f"Regression coefficients: {regressor.coef_[0]:.4f} (slope), {regressor.intercept_:.4f} (intercept)")
-    
-    # Create plot
-    create_regression_plot(df, regressor, r2)
-    
-    # Create lookup table
-    print("Creating lookup table...")
-    lookup_df = create_lookup_table(df, regressor)
-    filename = f"output/ultrasonic_lookup_table_surface_{SURFACE_TO_USE}.csv"
-    lookup_df.to_csv(filename, index=False)
-    print(f"Lookup table saved to {filename}")
-    print(f"Table shape: {lookup_df.shape}")
+    for surface in surfaces:
+        print(f"\nProcessing surface: {surface}")
+        # Filter data for current surface
+        filtered_df = df[df["surface"] == surface]
+        print(f"Data points: {len(filtered_df)}")
+        
+        # Perform regression
+        regressor, r2, y_pred = perform_linear_regression(filtered_df)
+        
+        print(f"R² score: {r2:.4f}")
+        print(f"Regression coefficients: {regressor.coef_[0]:.4f} (slope), {regressor.intercept_:.4f} (intercept)")
+        
+        # Create plot
+        create_regression_plot(filtered_df, regressor, r2, surface)
+        
+        # Create lookup table
+        print("Creating lookup table...")
+        lookup_df = create_lookup_table(filtered_df, regressor, surface)
+        filename = f"output/ultrasonic_lookup_table_surface_{surface}.csv"
+        lookup_df.to_csv(filename, index=False)
+        print(f"Lookup table saved to {filename}")
+        print(f"Table shape: {lookup_df.shape}")

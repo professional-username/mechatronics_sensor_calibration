@@ -54,7 +54,7 @@ def perform_exponential_regression(df):
         return None, None, None
 
 
-def create_regression_plot(df, params, r2):
+def create_regression_plot(df, params, r2, dataset):
     """Create and save regression plot"""
     plt.figure()
     # Sort the data for better visualization
@@ -62,7 +62,7 @@ def create_regression_plot(df, params, r2):
     sns.scatterplot(data=sorted_df, x="distance", y="value", alpha=0.5, label="Data points")
     plt.xlabel("Distance")
     plt.ylabel("Value")
-    plt.title(f"Infrared Sensor Calibration (Dataset {DATASET_TO_USE})")
+    plt.title(f"Infrared Sensor Calibration (Dataset {dataset})")
 
     # Plot fitted curve
     if params:
@@ -84,11 +84,11 @@ def create_regression_plot(df, params, r2):
 
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"output/infrared_regression_dataset_{DATASET_TO_USE}.png", dpi=150)
+    plt.savefig(f"output/infrared_regression_dataset_{dataset}.png", dpi=150)
     plt.close()
 
 
-def create_lookup_table(df, params):
+def create_lookup_table(df, params, dataset):
     """Create value->distance lookup table"""
     if not params:
         return pd.DataFrame()
@@ -123,30 +123,43 @@ def create_lookup_table(df, params):
 
 def process():
     """Main function to process infrared data for regression analysis"""
-    # Load and prepare data
+    # Load data
     df = load_and_prepare_data("data/clean_infrared.csv")
-    print(
-        f"Using dataset {DATASET_TO_USE} with distance range: {MIN_CUTOFF_DISTANCE} to {MAX_CUTOFF_DISTANCE}"
-    )
-    print(f"Data points after filtering: {len(df)}")
+    
+    # Get all unique datasets
+    datasets = df["dataset"].unique()
+    print(f"Found datasets: {list(datasets)}")
+    
+    for dataset in datasets:
+        print(f"\nProcessing dataset: {dataset}")
+        # Filter data for current dataset and apply cutoffs
+        filtered_df = df[df["dataset"] == dataset]
+        filtered_df = filtered_df[
+            (filtered_df["distance"] >= MIN_CUTOFF_DISTANCE)
+            & (filtered_df["distance"] <= MAX_CUTOFF_DISTANCE)
+        ]
+        print(
+            f"Using distance range: {MIN_CUTOFF_DISTANCE} to {MAX_CUTOFF_DISTANCE}"
+        )
+        print(f"Data points after filtering: {len(filtered_df)}")
 
-    # Perform regression
-    params, r2, y_pred = perform_exponential_regression(df)
+        # Perform regression
+        params, r2, y_pred = perform_exponential_regression(filtered_df)
 
-    if params:
-        a, b, c = params
-        print(f"Exponential parameters: a={a:.4f}, b={b:.4f}, c={c:.4f}")
-        print(f"R² score: {r2:.4f}")
+        if params:
+            a, b, c = params
+            print(f"Exponential parameters: a={a:.4f}, b={b:.4f}, c={c:.4f}")
+            print(f"R² score: {r2:.4f}")
 
-        # Create plot
-        create_regression_plot(df, params, r2)
+            # Create plot
+            create_regression_plot(filtered_df, params, r2, dataset)
 
-        # Create lookup table
-        print("Creating lookup table...")
-        lookup_df = create_lookup_table(df, params)
-        filename = f"output/infrared_lookup_table_dataset_{DATASET_TO_USE}.csv"
-        lookup_df.to_csv(filename, index=False)
-        print(f"Lookup table saved to {filename}")
-        print(f"Table shape: {lookup_df.shape}")
-    else:
-        print("Regression analysis failed!")
+            # Create lookup table
+            print("Creating lookup table...")
+            lookup_df = create_lookup_table(filtered_df, params, dataset)
+            filename = f"output/infrared_lookup_table_dataset_{dataset}.csv"
+            lookup_df.to_csv(filename, index=False)
+            print(f"Lookup table saved to {filename}")
+            print(f"Table shape: {lookup_df.shape}")
+        else:
+            print("Regression analysis failed!")
