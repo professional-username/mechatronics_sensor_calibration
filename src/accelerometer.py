@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Global configuration variables
-DIMENSIONS_TO_PLOT = ["x", "y"]
+DIMENSIONS_TO_PLOT = ["x", "z"]
 RECORDED_DATA_PLOT = "scatter"  # Options: "scatter", "boxplot"
 
 
@@ -27,7 +27,9 @@ def process():
     if RECORDED_DATA_PLOT == "scatter":
         for dim in DIMENSIONS_TO_PLOT:
             dim_data = recorded[recorded["dimension"] == dim]
-            sns.scatterplot(data=dim_data, x="angle", y="value", label=f"{dim} recorded", alpha=0.6)
+            sns.scatterplot(
+                data=dim_data, x="angle", y="value", label=f"{dim} recorded", alpha=0.6
+            )
     elif RECORDED_DATA_PLOT == "boxplot":
         # Create boxplot for each angle
         # We need to ensure the x-axis is treated as categorical for boxplot
