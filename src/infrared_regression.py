@@ -11,8 +11,8 @@ DATASET_TO_USE = "A"  # Options: "A" or "B"
 CUTOFF_DISTANCE = 120  # Distance beyond which to exclude data
 
 def exponential_func(x, a, b, c):
-    """Exponential function for curve fitting"""
-    return a * np.exp(b * x) + c
+    """Exponential function for curve fitting - decreasing"""
+    return a * np.exp(-b * x) + c
 
 def load_and_prepare_data(file_path):
     """Load infrared data and filter based on dataset and cutoff"""
@@ -61,7 +61,7 @@ def create_regression_plot(df, params, r2):
         plt.text(
             0.05,
             0.90,
-            f"R² = {r2:.4f}\nFunction: {a:.4f} * exp({b:.4f} * x) + {c:.4f}",
+            f"R² = {r2:.4f}\nFunction: {a:.4f} * exp(-{b:.4f} * x) + {c:.4f}",
             transform=plt.gca().transAxes,
             bbox=dict(boxstyle="round", alpha=0.5),
         )
@@ -79,12 +79,12 @@ def create_lookup_table(df, params):
     # Get unique values from the data
     unique_values = np.sort(df["value"].unique())
     
-    # For exponential function value = a * exp(b * distance) + c
-    # Solve for distance: distance = ln((value - c) / a) / b
+    # For exponential function value = a * exp(-b * distance) + c
+    # Solve for distance: distance = -ln((value - c) / a) / b
     lookup_data = []
     for value in unique_values:
         if (value - c) / a > 0:  # Ensure valid for logarithm
-            distance = np.log((value - c) / a) / b
+            distance = -np.log((value - c) / a) / b
             lookup_data.append({
                 'value': value,
                 'distance': distance
