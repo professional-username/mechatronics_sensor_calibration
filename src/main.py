@@ -1,43 +1,48 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+import argparse
+import sys
 from pathlib import Path
 
-def load_csv_data(file_path):
-    """Load and return CSV data as pandas DataFrame"""
-    return pd.read_csv(file_path)
-
-def create_visualizations(df, output_dir="output"):
-    """Create various seaborn plots from the DataFrame"""
-    Path(output_dir).mkdir(exist_ok=True)
-    
-    # Example plots - customize based on your data
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(data=df)
-    plt.title("Sensor Data Over Time")
-    plt.savefig(f"{output_dir}/lineplot.png")
-    plt.close()
-    
-    # Add more plot types as needed
-    # sns.scatterplot, sns.histplot, sns.heatmap, etc.
-
 def main():
-    print("Processing sensor calibration data...")
+    parser = argparse.ArgumentParser(description='Process sensor calibration data and generate visualizations')
+    parser.add_argument('--accelerometer', action='store_true', help='Process accelerometer data')
+    parser.add_argument('--infrared', action='store_true', help='Process infrared data')
+    parser.add_argument('--ultrasonic', action='store_true', help='Process ultrasonic data')
+    parser.add_argument('--all', action='store_true', help='Process all data')
     
-    # Example usage - modify paths as needed
-    data_file = "data/sensor_data.csv"
+    args = parser.parse_args()
     
-    try:
-        df = load_csv_data(data_file)
-        print(f"Loaded data with shape: {df.shape}")
-        
-        create_visualizations(df)
-        print("Visualizations saved to output/ directory")
-        
-    except FileNotFoundError:
-        print(f"Data file {data_file} not found")
-    except Exception as e:
-        print(f"Error processing data: {e}")
+    # If no arguments are provided, show help
+    if not any(vars(args).values()):
+        parser.print_help()
+        return
+    
+    # Create output directory
+    Path("output").mkdir(exist_ok=True)
+    
+    # Process based on flags
+    if args.accelerometer or args.all:
+        try:
+            from . import accelerometer
+            print("Processing accelerometer data...")
+            accelerometer.process()
+        except ImportError as e:
+            print(f"Error importing accelerometer module: {e}")
+    
+    if args.infrared or args.all:
+        try:
+            from . import infrared
+            print("Processing infrared data...")
+            infrared.process()
+        except ImportError as e:
+            print(f"Error importing infrared module: {e}")
+    
+    if args.ultrasonic or args.all:
+        try:
+            from . import ultrasonic
+            print("Processing ultrasonic data...")
+            ultrasonic.process()
+        except ImportError as e:
+            print(f"Error importing ultrasonic module: {e}")
 
 if __name__ == "__main__":
     main()
