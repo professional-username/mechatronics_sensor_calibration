@@ -108,47 +108,53 @@ def process_dimension(recorded_df, calculated_df, dimension):
     }
 
 
-def create_lookup_table(recorded_df, calculated_df, results):
-    """Create a lookup table with angles, calculated values, and measured values using regression"""
-    # Get all unique angles
-    all_angles = pd.concat([
-        recorded_df['angle'], 
-        calculated_df['angle']
-    ]).unique()
+def create_dimension_lookup_table(calculated_df, dimension, slope, intercept):
+    """Create a lookup table for a specific dimension with angles, calculated values, and measured values"""
+    # Get all unique angles for this dimension
+    dimension_calc = calculated_df[calculated_df['dimension'] == dimension]
+    all_angles = dimension_calc['angle'].unique()
     all_angles.sort()
     
     lookup_data = []
     
     for angle in all_angles:
-        row = {'angle': angle}
+        # Get calculated value for this angle and dimension
+        calc_mask = (calculated_df['angle'] == angle) & (calculated_df['dimension'] == dimension)
+        if calc_mask.any():
+            calc_value = calculated_df.loc[calc_mask, 'value'].iloc[0]
+        else:
+            calc_value = None
         
-        # For each dimension, get the calculated value and compute measured value
-        for result in results:
-            dimension = result['dimension']
-            slope = result['slope']
-            intercept = result['intercept']
-            
-            # Get calculated value for this angle and dimension
-            calc_mask = (calculated_df['angle'] == angle) & (calculated_df['dimension'] == dimension)
-            if calc_mask.any():
-                calc_value = calculated_df.loc[calc_mask, 'value'].iloc[0]
-            else:
-                calc_value = None
-            
-            # Compute measured value using regression: measured = (calculated - intercept) / slope
-            # But be careful if slope is zero
-            if calc_value is not None and slope != 0:
-                measured_value = (calc_value - intercept) / slope
-            else:
-                measured_value = None
-            
-            row[f'{dimension}_calculated'] = calc_value
-            row[f'{dimension}_measured'] = measured_value
+        # Compute measured value using regression: measured = (calculated - intercept) / slope
+        if calc_value is not None and slope != 0:
+            measured_value = (calc_value - intercept) / slope
+        else:
+            measured_value = None
         
-        lookup_data.append(row)
+        lookup_data.append({
+            'angle': angle,
+            'calculated': calc_value,
+            'measured': measured_value
+        })
     
     lookup_df = pd.DataFrame(lookup_data)
     return lookup_df
+
+
+def create_lookup_tables(recorded_df, calculated_df, results):
+    """Create separate lookup tables for x, y, and z dimensions"""
+    lookup_tables = {}
+    
+    for result in results:
+        dimension = result['dimension']
+        slope = result['slope']
+        intercept = result['intercept']
+        
+        print(f"  Creating lookup table for {dimension} dimension...")
+        lookup_df = create_dimension_lookup_table(calculated_df, dimension, slope, intercept)
+        lookup_tables[dimension] = lookup_df
+    
+    return lookup_tables
 
 
 def process():
@@ -164,12 +170,16 @@ def process():
         result = process_dimension(recorded_df, calculated_df, dimension)
         results.append(result)
     
-    # Create and save lookup table
-    print("\nCreating lookup table...")
-    lookup_df = create_lookup_table(recorded_df, calculated_df, results)
-    lookup_df.to_csv("output/accelerometer_lookup_table.csv", index=False)
-    print(f"Lookup table saved to output/accelerometer_lookup_table.csv")
-    print(f"Table shape: {lookup_df.shape}")
+    # Create and save lookup tables
+    print("\nCreating lookup tables...")
+    lookup_tables = create_lookup_tables(recorded_df, calculated_df, results)
+    
+    # Save each dimension's lookup table to a separate CSV file
+    for dimension, lookup_df in lookup_tables.items():
+        filename = f"output/accelerometer_lookup_table_{dimension}.csv"
+        lookup_df.to_csv(filename, index=False)
+        print(f"  Lookup table for {dimension} saved to {filename}")
+        print(f"  Table shape: {lookup_df.shape}")
     
     # Print summary
     print("\nRegression analysis complete!")
